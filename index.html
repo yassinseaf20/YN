@@ -4,10 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Learning Portal</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<link rel="stylesheet"href="style.css">
+
 <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
 <div class="container">
     <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -21,7 +23,7 @@
         <div class="title">Learning Portal</div>
 
         <label>Login Gmail</label>
-        <input type="text" placeholder="" />
+        <input type="text" id="email" placeholder="" />
 
         <label>Password</label>
         <input type="password" id="pass" placeholder="" />
@@ -32,18 +34,17 @@
         </div>
 
         <button class="login-btn">Login</button>
-        <button class="google-btn" id="googleBtn">
-            <img src="https://img.icons8.com/color/20/google-logo.png" alt="Google Icon" /> Sign Up with Google
-</button>
-</button>
 
+        <button class="google-btn" id="googleBtn">
+            <img src="https://img.icons8.com/color/20/google-logo.png" alt="Google Icon" />
+            Sign In with Google
+        </button>
     </div>
 
     <div class="footer-container">
         <div class="footer-link">
             <a href="sigin/index.html">I don't have an account.</a>
         </div>
-
         <div class="footer-text">©2019 - 2025 YS, Inc. All Rights Reserved.</div>
     </div>
 </div>
@@ -55,8 +56,8 @@ function togglePassword() {
 }
 </script>
 
+<!-- Toast -->
 <script>
-// Nice toast notification helper
 function showToast(message, type = 'success', options = {}) {
     const container = document.getElementById('toast-container');
     if (!container) return alert(message);
@@ -64,26 +65,17 @@ function showToast(message, type = 'success', options = {}) {
     const toast = document.createElement('div');
     toast.className = 'toast ' + (type === 'error' ? 'error' : 'success');
 
-    const icon = document.createElement('div');
-    icon.className = 'icon';
-    icon.innerHTML = type === 'error' ?
-        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M12 9v4" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' :
-        '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M9 12l2 2 4-4" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#16a34a" stroke-width="2"/></svg>';
-
     const text = document.createElement('div');
     text.className = 'text';
     text.textContent = message;
 
     const close = document.createElement('button');
     close.className = 'close';
-    close.setAttribute('aria-label', 'close');
     close.innerHTML = '&times;';
     close.addEventListener('click', () => removeToast(toast));
 
-    toast.appendChild(icon);
     toast.appendChild(text);
     toast.appendChild(close);
-
     container.appendChild(toast);
 
     const duration = options.duration || (type === 'error' ? 5000 : 2800);
@@ -95,16 +87,19 @@ function showToast(message, type = 'success', options = {}) {
         setTimeout(() => { try { container.removeChild(el); } catch (e) {} }, 200);
         clearTimeout(timeoutId);
     }
-    return toast;
 }
 </script>
 
-<!-- Firebase login script (uses the existing input fields) -->
+<!-- Firebase Login -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup }  from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+import { 
+    getAuth, 
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup 
+} from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
 
-// Firebase config (kept as provided)
 const firebaseConfig = {
     apiKey: "AIzaSyBSMqOOOHZmqlDTeHVqy4TMDWmhqCgq3cc",
     authDomain: "qureo-2d7af.firebaseapp.com",
@@ -117,46 +112,42 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-// Use the existing inputs on the page: first text input is Login ID (email)
-const emailInput = document.querySelector('input[type="text"]');
+const emailInput = document.getElementById('email');
 const passInput = document.getElementById('pass');
 const loginBtn = document.querySelector('.login-btn');
 const googleBtn = document.getElementById('googleBtn');
 
-if (loginBtn) {
-    loginBtn.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        const email = emailInput ? emailInput.value.trim() : '';
-        const password = passInput ? passInput.value : '';
-        if (!email || !password) {
-            showToast('من فضلك ادخل البريد الإلكتروني وكلمة السر', 'error');
-            return;
-        }
-        try {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-            // On success - show message then redirect to home
-            showToast('تم تسجيل الدخول بنجاح: ' + (user.email || ''), 'success');
-            // Redirect after a short delay so the user sees the toast
-            setTimeout(() => { window.location.href = 'home/home.html'; }, 900);
-        } catch (err) {
-            console.error(err);
-            const msg = err && err.message ? err.message : 'خطأ في تسجيل الدخول';
-            showToast('فشل تسجيل الدخول: ' + msg, 'error', { duration: 6000 });
-        }
-    });
-}
-const provider = new GoogleAuthProvider();
+// Email Login
+loginBtn.addEventListener('click', async (ev) => {
+    ev.preventDefault();
 
+    const email = emailInput.value.trim();
+    const password = passInput.value;
+
+    if (!email || !password) {
+        showToast('من فضلك ادخل البريد الإلكتروني وكلمة السر', 'error');
+        return;
+    }
+
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        showToast('تم تسجيل الدخول بنجاح', 'success');
+        setTimeout(() => window.location.href = 'home/home.html', 900);
+    } catch (err) {
+        showToast('فشل تسجيل الدخول: ' + err.message, 'error', { duration: 6000 });
+    }
+});
+
+// Google Login
 googleBtn.addEventListener('click', async () => {
     try {
         const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        showToast(`Welcome, ${user.displayName || 'User'}!`, 'success');
-        setTimeout(() => window.location.href = '../home/index.html', 900);
+        showToast(`Welcome, ${result.user.displayName || "User"}!`, 'success');
+        setTimeout(() => window.location.href = 'home/home.html', 900);
     } catch (err) {
-        showToast(err.message || 'Google sign up failed', 'error', { duration: 6000 });
+        showToast(err.message || 'Google sign-in failed', 'error', { duration: 6000 });
     }
 });
 </script>
